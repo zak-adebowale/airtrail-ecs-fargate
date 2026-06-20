@@ -1,0 +1,1 @@
+# AirTrail – AWS ECS Fargate Deployment with Terraform
