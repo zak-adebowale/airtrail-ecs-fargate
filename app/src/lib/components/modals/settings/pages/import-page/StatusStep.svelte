@@ -1,0 +1,277 @@
+<script lang="ts">
+  import { Check, CircleAlert, ExternalLink } from '@o7/icon/lucide';
+
+  import { page } from '$app/state';
+
+  import AirlinePicker from '$lib/components/form-fields/AirlinePicker.svelte';
+  import AirportPicker from '$lib/components/form-fields/AirportPicker.svelte';
+  import CreateAirline from '$lib/components/modals/settings/pages/data-page/airline/CreateAirline.svelte';
+  import CreateAirport from '$lib/components/modals/settings/pages/data-page/airport/CreateAirport.svelte';
+  import { Button } from '$lib/components/ui/button';
+  import { Card } from '$lib/components/ui/card';
+  import { ScrollArea } from '$lib/components/ui/scroll-area';
+  import { Separator } from '$lib/components/ui/separator';
+  import type { Airline, Airport } from '$lib/db/types';
+  import { pluralize } from '$lib/utils';
+  import type { ImportFailure } from './';
+
+  let {
+    importedCount = 0,
+    skippedRows = 0,
+    importFailures = [],
+    unknownAirports = {},
+    unknownAirlines = {},
+    busy = false,
+    onreprocess,
+    onclose,
+  }: {
+    importedCount?: number;
+    skippedRows?: number;
+    importFailures?: ImportFailure[];
+    unknownAirports?: Record<string, number[]>;
+    unknownAirlines?: Record<string, number[]>;
+    busy?: boolean;
+    onreprocess?: (
+      airportMapping: Record<string, Airport>,
+      airlineMapping: Record<string, Airline>,
+    ) => void;
+    onclose?: () => void;
+  } = $props();
+
+  const unknownAirportCodes = $derived(Object.keys(unknownAirports));
+  const unknownAirlineCodes = $derived(Object.keys(unknownAirlines));
+
+  let airportMapping: Record<string, Airport> = $state({});
+  let airlineMapping: Record<string, Airline> = $state({});
+
+  const canReprocess = $derived(
+    (Object.values(airportMapping).some(Boolean) ||
+      Object.values(airlineMapping).some(Boolean)) &&
+      !busy,
+  );
+  const mappedAirportCount = $derived(Object.keys(airportMapping).length);
+  const mappedAirlineCount = $derived(Object.keys(airlineMapping).length);
+
+  const isAdmin = $derived(page.data.user?.role !== 'user');
+
+  let createAirport = $state(false);
+  let createAirline = $state(false);
+
+  const setAirportMapping = (code: string, airport: Airport | null) => {
+    if (airport) {
+      airportMapping[code] = airport;
+    } else {
+      delete airportMapping[code];
+    }
+  };
+
+  const setAirlineMapping = (code: string, airline: Airline | null) => {
+    if (airline) {
+      airlineMapping[code] = airline;
+    } else {
+      delete airlineMapping[code];
+    }
+  };
+
+  const handleReprocess = () => {
+    onreprocess?.(airportMapping, airlineMapping);
+  };
+</script>
+
+<div class="space-y-4">
+  <h3 class="text-sm font-medium">Import Status</h3>
+
+  <Card class="p-4">
+    <div class="flex items-start gap-3">
+      <Check
+        class="text-green-600 dark:text-green-500 mt-0.5 shrink-0"
+        size={20}
+      />
+      <div class="flex-1">
+        <p class="font-medium text-sm">Import Complete</p>
+        <p class="text-sm text-muted-foreground mt-0.5">
+          Successfully imported {importedCount}
+          {pluralize(importedCount, 'flight')}
+        </p>
+      </div>
+    </div>
+
+    {#if skippedRows > 0}
+      <Separator class="my-4" />
+
+      <div class="flex items-start gap-3">
+        <CircleAlert
+          class="text-amber-600 dark:text-amber-500 mt-0.5 shrink-0"
+          size={20}
+        />
+        <div class="flex-1">
+          <p class="font-medium text-sm">
+            {skippedRows} Skipped {pluralize(skippedRows, 'Row')}
+          </p>
+          <p class="text-sm text-muted-foreground mt-0.5">
+            Could not be parsed. Check the browser console for details.
+          </p>
+        </div>
+      </div>
+    {/if}
+
+    {#if importFailures.length > 0}
+      <Separator class="my-4" />
+
+      <div class="flex items-start gap-3">
+        <CircleAlert class="text-destructive mt-0.5 shrink-0" size={20} />
+        <div class="flex-1">
+          <p class="font-medium text-sm">
+            {importFailures.length} Validation
+            {pluralize(importFailures.length, 'Error')}
+          </p>
+          <div class="text-sm text-muted-foreground mt-1 space-y-1">
+            {#each importFailures.slice(0, 5) as failure (failure.index)}
+              <p>
+                Flight {failure.index + 1}: {failure.message}
+              </p>
+            {/each}
+            {#if importFailures.length > 5}
+              <p>
+                Plus {importFailures.length - 5} more
+                {pluralize(importFailures.length - 5, 'error')}.
+              </p>
+            {/if}
+          </div>
+        </div>
+      </div>
+    {/if}
+
+    {#if unknownAirportCodes.length || unknownAirlineCodes.length}
+      <Separator class="my-4" />
+
+      <div class="flex items-start gap-3">
+        <CircleAlert
+          class="text-amber-600 dark:text-amber-500 mt-0.5 shrink-0"
+          size={20}
+        />
+        <div class="flex-1">
+          <p class="font-medium text-sm">
+            {unknownAirportCodes.length + unknownAirlineCodes.length} Unknown
+            {pluralize(
+              unknownAirportCodes.length + unknownAirlineCodes.length,
+              'Code',
+            )}
+          </p>
+          <p class="text-sm text-muted-foreground mt-0.5">
+            Match unknown airports and airlines, then re-import.
+          </p>
+        </div>
+      </div>
+
+      <ScrollArea class="h-[28dvh] mt-4 pr-2">
+        <div class="space-y-3">
+          {#if unknownAirportCodes.length}
+            <div class="space-y-2">
+              <p class="text-xs font-medium text-muted-foreground uppercase">
+                Airports ({unknownAirportCodes.length})
+              </p>
+              {#each unknownAirportCodes as code (code)}
+                <div class="flex items-center gap-3">
+                  <div
+                    class="flex items-center justify-center w-20 h-9 bg-muted/50 rounded-md border shrink-0"
+                  >
+                    <span class="text-sm font-mono font-medium">{code}</span>
+                  </div>
+                  <div class="flex-1">
+                    <AirportPicker
+                      placeholder="Search for airport..."
+                      onchange={(airport) => setAirportMapping(code, airport)}
+                      onCreateNew={isAdmin
+                        ? () => (createAirport = true)
+                        : undefined}
+                      disabled={busy}
+                      compact
+                    />
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {/if}
+
+          {#if unknownAirlineCodes.length}
+            <div class="space-y-2" class:mt-4={unknownAirportCodes.length}>
+              <p class="text-xs font-medium text-muted-foreground uppercase">
+                Airlines ({unknownAirlineCodes.length})
+              </p>
+              {#each unknownAirlineCodes as code (code)}
+                <div class="flex items-center gap-3">
+                  <div
+                    class="flex items-center justify-center w-20 h-9 bg-muted/50 rounded-md border shrink-0"
+                  >
+                    <span class="text-sm font-mono font-medium">{code}</span>
+                  </div>
+                  <div class="flex-1">
+                    <AirlinePicker
+                      placeholder="Search for airline..."
+                      onchange={(airline) => setAirlineMapping(code, airline)}
+                      onCreateNew={isAdmin
+                        ? () => (createAirline = true)
+                        : undefined}
+                      disabled={busy}
+                      compact
+                    />
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      </ScrollArea>
+
+      {#if mappedAirportCount > 0 || mappedAirlineCount > 0}
+        <div class="mt-4 p-3 bg-muted/30 rounded-md border border-muted">
+          <p class="text-xs text-muted-foreground">
+            {#if mappedAirportCount > 0}
+              {mappedAirportCount} of {unknownAirportCodes.length}
+              {pluralize(unknownAirportCodes.length, 'airport')} mapped
+            {/if}
+            {#if mappedAirportCount > 0 && mappedAirlineCount > 0}
+              <span class="mx-1">•</span>
+            {/if}
+            {#if mappedAirlineCount > 0}
+              {mappedAirlineCount} of {unknownAirlineCodes.length}
+              {pluralize(unknownAirlineCodes.length, 'airline')} mapped
+            {/if}
+          </p>
+        </div>
+      {/if}
+
+      <div class="mt-4 flex flex-wrap gap-2">
+        <Button
+          onclick={handleReprocess}
+          disabled={!canReprocess}
+          class="flex-1 sm:flex-none"
+        >
+          Apply Mapping & Re-import
+        </Button>
+        <Button
+          href="https://ourairports.com/"
+          target="_blank"
+          variant="outline"
+          class="gap-1"
+        >
+          Search OurAirports
+          <ExternalLink size={14} />
+        </Button>
+        <Button variant="ghost" onclick={() => onclose?.()} class="ml-auto">
+          Close
+        </Button>
+      </div>
+    {:else}
+      <div class="mt-4 flex justify-end">
+        <Button onclick={() => onclose?.()}>Done</Button>
+      </div>
+    {/if}
+  </Card>
+</div>
+
+{#if isAdmin}
+  <CreateAirport bind:open={createAirport} withoutTrigger />
+  <CreateAirline bind:open={createAirline} withoutTrigger />
+{/if}
