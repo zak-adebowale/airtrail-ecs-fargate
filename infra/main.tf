@@ -1,3 +1,4 @@
+# VPC config
 resource "aws_vpc" "ecs_project_vpc" {
   cidr_block = "10.0.0.0/16"
 
@@ -153,11 +154,91 @@ resource "aws_route_table_association" "public_rta_2" {
 resource "aws_route_table_association" "private_rta_1" {
   subnet_id      = aws_subnet.private_subnet_1.id
   route_table_id = aws_route_table.private_rt_1.id
-  depends_on = [aws_nat_gateway.ngw_1]
+  depends_on     = [aws_nat_gateway.ngw_1]
 }
 
 resource "aws_route_table_association" "private_rta_2" {
   subnet_id      = aws_subnet.private_subnet_2.id
   route_table_id = aws_route_table.private_rt_2.id
-  depends_on = [aws_nat_gateway.ngw_2]
+  depends_on     = [aws_nat_gateway.ngw_2]
+}
+
+# Security groups config
+
+resource "aws_security_group" "ecs_sg" {
+  vpc_id      = aws_vpc.ecs_project_vpc.id
+  name        = "ecs_sg"
+  description = "Allow inbound from ALB"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+  tags = {
+    Name = "ecs-sg"
+  }
+}
+
+resource "aws_security_group" "alb_sg" {
+  vpc_id      = aws_vpc.ecs_project_vpc.id
+  name        = "alb_sg"
+  description = "Allow inbound HTTP and HTTPS from internet"
+
+    ingress {
+        from_port   = 80
+        to_port     = 80
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port   = 443
+        to_port     = 443
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = {
+      Name = "alb-sg"
+  }
+}
+
+resource "aws_security_group" "rds_sg" {
+  vpc_id     = aws_vpc.ecs_project_vpc.id
+  name = "rds-sg"
+  description = "Allow inbound PostgreSQL from ECS"
+
+    ingress {
+        from_port       = 5432
+        to_port         = 5432
+        protocol        = "tcp"
+        security_groups = [aws_security_group.ecs_sg.id]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = {
+      Name = "rds-sg"
+  }    
 }
