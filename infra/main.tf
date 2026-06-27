@@ -58,6 +58,9 @@ resource "aws_db_subnet_group" "db_sub_group" {
     aws_subnet.private_subnet_1.id,
     aws_subnet.private_subnet_2.id
   ]
+  tags = {
+    Name = "db-subnet-group"
+  }
 }
 
 resource "aws_internet_gateway" "igw" {
