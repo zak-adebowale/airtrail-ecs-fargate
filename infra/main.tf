@@ -393,7 +393,7 @@ resource "aws_route53_zone" "main" {
   name = "airtrail.adebowale.co.uk"
 }
 
-# RDS Config
+# RDS config
 
 resource "aws_db_instance" "db_instance" {
   allocated_storage      = 20
@@ -414,5 +414,73 @@ resource "aws_db_instance" "db_instance" {
 
   tags = {
     Name = "airtrail-db"
+  }
+}
+
+# ALB setup
+
+resource "aws_lb" "airtrail_alb" {
+  name               = "airtrail-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_sg.id]
+  subnets            = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+
+  tags = {
+    Name = "airtrail-alb"
+  }
+}
+
+resource "aws_lb_target_group" "alb_tg" {
+  name     = "airtrail-tg"
+  port     = 3000
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.ecs_project_vpc.id
+  target_type = "ip"
+
+
+  health_check {
+    enabled             = true
+    path                = "/api/ping"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
+  }
+}
+
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.airtrail_alb.arn
+  port = 443
+  protocol = "HTTPS"
+  ssl_policy = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn = aws_acm_certificate_validation.main.certificate_arn
+
+  default_action {
+    type = "forward"
+
+    forward {
+      target_group {
+        arn = aws_lb_target_group.alb_tg.arn
+      }
+    }
+  }
+}
+
+resource "aws_lb_listener" "http_redirect" {
+  load_balancer_arn = aws_lb.airtrail_alb.arn
+  port = 80
+  protocol = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port = "443"
+      protocol = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
