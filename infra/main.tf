@@ -12,96 +12,10 @@ module "ecr" {
   source = "./modules/ecr"
 }
 
-# IAM roles
-
-resource "aws_iam_role" "ecs_execution" {
-  name = "airtrail-execution-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_execution" {
-  role       = aws_iam_role.ecs_execution.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-resource "aws_iam_openid_connect_provider" "github" {
-  url = "https://token.actions.githubusercontent.com"
-
-  client_id_list = [
-    "sts.amazonaws.com",
-  ]
-
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
-
-}
-
-resource "aws_iam_role" "github_actions" {
-  name = "airtrail-github-actions-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Federated = aws_iam_openid_connect_provider.github.arn
-        }        
-        Action = "sts:AssumeRoleWithWebIdentity"
-        Condition = {
-          StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:zach-adebowale/airtrail-ecs-fargate:*"
-          }
-          StringEquals = {
-            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-          }
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "github_actions" {
-  name = "airtrail-github-actions-policy"
-  role = aws_iam_role.github_actions.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:PutImage",
-          "ecr:InitiateLayerUpload",
-          "ecr:UploadLayerPart",
-          "ecr:CompleteLayerUpload",
-          "ecs:UpdateService",
-          "ecs:DescribeServices",
-          "ecs:RegisterTaskDefinition",
-          "ecs:DescribeTaskDefinition",
-          "iam:PassRole",
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:ListBucket",
-          "s3:DeleteObject"
-        ]
-        Resource = "*"
-      }
-    ]
-  })     
+module "iam" {
+  source     = "./modules/iam"
+  github_org = var.github_org
+  repo_name  = var.repo_name
 }
 
 # ACM config
@@ -258,8 +172,8 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "1024"
   memory                   = "2048"
-  execution_role_arn       = aws_iam_role.ecs_execution.arn
-  task_role_arn            = aws_iam_role.ecs_execution.arn
+  execution_role_arn       = module.iam.iam_ecs_execution
+  task_role_arn            = module.iam.iam_ecs_execution
   container_definitions    = jsonencode([
     {
       name  = "airtrail"
@@ -333,7 +247,7 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
 
   depends_on = [
     aws_lb_listener.https,
-    aws_iam_role_policy_attachment.ecs_execution
+    module.iam.iam_policy_attach_ecs_execution
    ]
 }
 

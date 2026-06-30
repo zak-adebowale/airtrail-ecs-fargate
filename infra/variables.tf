@@ -16,3 +16,12 @@ variable "aws_region" {
   default     = "eu-west-2"  
 }
 
+variable "github_org" {
+  description = "GitHub username"
+  type        = string
+}
+
+variable "repo_name" {
+  description = "Repo name"
+  type        = string
+}
