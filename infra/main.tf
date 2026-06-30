@@ -1,175 +1,12 @@
-# VPC config
-resource "aws_vpc" "ecs_project_vpc" {
-  cidr_block = "10.0.0.0/16"
-
-  tags = {
-    Name = "airtrail-vpc"
-  }
-}
-
-resource "aws_subnet" "public_subnet_1" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-  cidr_block = "10.0.1.0/24"
-  availability_zone = "eu-west-2a"
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "airtrail-public-subnet-1"
-  }
-}
-
-resource "aws_subnet" "public_subnet_2" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-  cidr_block = "10.0.2.0/24"
-  availability_zone = "eu-west-2b"
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "airtrail-public-subnet-2"
-  }
-}
-
-resource "aws_subnet" "private_subnet_1" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-  cidr_block = "10.0.3.0/24"
-  availability_zone = "eu-west-2a"
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "airtrail-private-subnet-1"
-  }
-}
-
-resource "aws_subnet" "private_subnet_2" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-  cidr_block = "10.0.4.0/24"
-  availability_zone = "eu-west-2b"
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "airtrail-private-subnet-2"
-  }
-}
-
-resource "aws_db_subnet_group" "db_sub_group" {
-  name = "airtrail_db_subnet_group"
-
-  subnet_ids = [
-    aws_subnet.private_subnet_1.id,
-    aws_subnet.private_subnet_2.id
-  ]
-  tags = {
-    Name = "db-subnet-group"
-  }
-}
-
-resource "aws_internet_gateway" "igw" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-
-  tags = {
-    Name = "airtrail-igw"
-  }
-}
-
-resource "aws_eip" "ngw_eip_1" {
-  domain = "vpc"
-
-  tags = {
-    Name = "airtrail-ngw-eip-1"
-  }
-}
-
-resource "aws_eip" "ngw_eip_2" {
-  domain = "vpc"
-
-  tags = {
-    Name = "airtrail-ngw-eip-2"
-  }
-}
-
-resource "aws_nat_gateway" "ngw_1" { 
-  allocation_id = aws_eip.ngw_eip_1.id
-  subnet_id     = aws_subnet.public_subnet_1.id 
-  depends_on    = [aws_internet_gateway.igw] 
-  
-  tags = {
-    Name = "ngw-1" }
-} 
-
-resource "aws_nat_gateway" "ngw_2" { 
-  allocation_id = aws_eip.ngw_eip_2.id
-  subnet_id     = aws_subnet.public_subnet_2.id 
-  depends_on    = [aws_internet_gateway.igw] 
-  
-  tags = { 
-    Name = "ngw-2" }
-}
-
-resource "aws_route_table" "public_rt" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-
-  route {
-  cidr_block = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.igw.id
-  }
-  
-  tags = {
-    Name = "airtrail-public-rt"
-  }
-}
-
-resource "aws_route_table" "private_rt_1" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.ngw_1.id
-  }
-
-  tags = {
-    Name = "airtrail-private-rt-1"
-  }
-}
-
-resource "aws_route_table" "private_rt_2" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.ngw_2.id
-  }
-
-  tags = {
-    Name = "airtrail-private-rt-2"
-  }
-}
-
-resource "aws_route_table_association" "public_rta_1" {
-  subnet_id      = aws_subnet.public_subnet_1.id
-  route_table_id = aws_route_table.public_rt.id
-}
-
-resource "aws_route_table_association" "public_rta_2" {
-  subnet_id      = aws_subnet.public_subnet_2.id
-  route_table_id = aws_route_table.public_rt.id
-}
-
-resource "aws_route_table_association" "private_rta_1" {
-  subnet_id      = aws_subnet.private_subnet_1.id
-  route_table_id = aws_route_table.private_rt_1.id
-  depends_on     = [aws_nat_gateway.ngw_1]
-}
-
-resource "aws_route_table_association" "private_rta_2" {
-  subnet_id      = aws_subnet.private_subnet_2.id
-  route_table_id = aws_route_table.private_rt_2.id
-  depends_on     = [aws_nat_gateway.ngw_2]
+module "vpc" {
+  source = "./modules/vpc"
+  aws_region = var.aws_region
 }
 
 # Security groups config
 
 resource "aws_security_group" "ecs_sg" {
-  vpc_id      = aws_vpc.ecs_project_vpc.id
+  vpc_id      = module.vpc.vpc_id
   name        = "ecs_sg"
   description = "Allow inbound from ALB"
 
@@ -192,7 +29,7 @@ resource "aws_security_group" "ecs_sg" {
 }
 
 resource "aws_security_group" "alb_sg" {
-  vpc_id      = aws_vpc.ecs_project_vpc.id
+  vpc_id      = module.vpc.vpc_id
   name        = "alb_sg"
   description = "Allow inbound HTTP and HTTPS from internet"
 
@@ -223,7 +60,7 @@ resource "aws_security_group" "alb_sg" {
 }
 
 resource "aws_security_group" "rds_sg" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
+  vpc_id     = module.vpc.vpc_id
   name = "rds-sg"
   description = "Allow inbound PostgreSQL from ECS"
 
@@ -398,7 +235,7 @@ data "aws_route53_zone" "airtrail_route53_zone" {
 resource "aws_db_instance" "db_instance" {
   allocated_storage      = 20
   db_name                = "airtrail"
-  db_subnet_group_name   = aws_db_subnet_group.db_sub_group.name
+  db_subnet_group_name   = module.vpc.db_subnet_group_name
   engine                 = "postgres"
   engine_version         = "16.14"
   storage_type           = "gp3"
@@ -424,7 +261,7 @@ resource "aws_lb" "airtrail_alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+  subnets            = module.vpc.public_subnet_ids
 
   tags = {
     Name = "airtrail-alb"
@@ -435,7 +272,7 @@ resource "aws_lb_target_group" "alb_tg" {
   name     = "airtrail-tg"
   port     = 3000
   protocol = "HTTP"
-  vpc_id   = aws_vpc.ecs_project_vpc.id
+  vpc_id   = module.vpc.vpc_id
   target_type = "ip"
 
 
@@ -564,7 +401,7 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
+    subnets          = module.vpc.private_subnet_ids
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = false
   }
