@@ -1,86 +1,11 @@
 module "vpc" {
-  source = "./modules/vpc"
+  source     = "./modules/vpc"
   aws_region = var.aws_region
 }
 
-# Security groups config
-
-resource "aws_security_group" "ecs_sg" {
-  vpc_id      = module.vpc.vpc_id
-  name        = "ecs_sg"
-  description = "Allow inbound from ALB"
-
-  ingress {
-    from_port       = 3000
-    to_port         = 3000
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id]
-    }
-
-    egress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-  tags = {
-    Name = "ecs-sg"
-  }
-}
-
-resource "aws_security_group" "alb_sg" {
-  vpc_id      = module.vpc.vpc_id
-  name        = "alb_sg"
-  description = "Allow inbound HTTP and HTTPS from internet"
-
-    ingress {
-        from_port   = 80
-        to_port     = 80
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port   = 443
-        to_port     = 443
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    egress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    tags = {
-      Name = "alb-sg"
-  }
-}
-
-resource "aws_security_group" "rds_sg" {
-  vpc_id     = module.vpc.vpc_id
-  name = "rds-sg"
-  description = "Allow inbound PostgreSQL from ECS"
-
-    ingress {
-        from_port       = 5432
-        to_port         = 5432
-        protocol        = "tcp"
-        security_groups = [aws_security_group.ecs_sg.id]
-    }
-
-    egress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    tags = {
-      Name = "rds-sg"
-  }    
+module "security_groups" {
+  source = "./modules/security_groups"
+  vpc_id = module.vpc.vpc_id
 }
 
 # ECR config
@@ -243,7 +168,7 @@ resource "aws_db_instance" "db_instance" {
   instance_class         = "db.t3.micro"
   username               = var.db_username
   password               = var.db_password 
-  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  vpc_security_group_ids = [module.security_groups.rds_sg_id]
   multi_az               = false
   publicly_accessible    = false
   skip_final_snapshot    = true
@@ -260,7 +185,7 @@ resource "aws_lb" "airtrail_alb" {
   name               = "airtrail-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg.id]
+  security_groups    = [module.security_groups.alb_sg_id]
   subnets            = module.vpc.public_subnet_ids
 
   tags = {
@@ -402,7 +327,7 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
 
   network_configuration {
     subnets          = module.vpc.private_subnet_ids
-    security_groups  = [aws_security_group.ecs_sg.id]
+    security_groups  = [module.security_groups.ecs_sg_id]
     assign_public_ip = false
   }
 
