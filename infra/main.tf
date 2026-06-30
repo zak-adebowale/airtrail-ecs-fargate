@@ -8,19 +8,8 @@ module "security_groups" {
   vpc_id = module.vpc.vpc_id
 }
 
-# ECR config
-
-resource "aws_ecr_repository" "airtrail" {
-  name = "airtrail"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  tags = {
-    Name = "airtrail-ecr"
-  }
+module "ecr" {
+  source = "./modules/ecr"
 }
 
 # IAM roles
@@ -274,7 +263,7 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
   container_definitions    = jsonencode([
     {
       name  = "airtrail"
-      image = "${aws_ecr_repository.airtrail.repository_url}:latest"
+      image = "${module.ecr.ecr_repo}:latest"
     
       portMappings = [
         { 
