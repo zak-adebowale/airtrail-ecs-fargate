@@ -585,3 +585,17 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
     aws_iam_role_policy_attachment.ecs_execution
    ]
 }
+
+# Route 53 config
+
+resource "aws_route53_record" "airtrail_route53_record" {
+  zone_id = data.aws_route53_zone.airtrail_route53_zone.id
+  name    = "airtrail.adebowale.co.uk"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.airtrail_alb.dns_name
+    zone_id                = aws_lb.airtrail_alb.zone_id
+    evaluate_target_health = true
+  }
+}
