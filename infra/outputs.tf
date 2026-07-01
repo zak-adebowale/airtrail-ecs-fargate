@@ -5,7 +5,7 @@ output "alb_dns_name" {
 
 output "rds_endpoint" {
   description = "RDS endpoint"
-  value       = aws_db_instance.db_instance.endpoint
+  value       = module.db.rds_endpoint
   sensitive   = true
 }
 

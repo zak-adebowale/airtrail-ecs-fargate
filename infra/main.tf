@@ -26,28 +26,12 @@ module "route53" {
   alb_zone_id  = aws_lb.airtrail_alb.zone_id
 }
 
-# RDS config
-
-resource "aws_db_instance" "db_instance" {
-  allocated_storage      = 20
-  db_name                = "airtrail"
-  db_subnet_group_name   = module.vpc.db_subnet_group_name
-  engine                 = "postgres"
-  engine_version         = "16.14"
-  storage_type           = "gp3"
-  identifier             = "airtrail-db"
-  instance_class         = "db.t3.micro"
-  username               = var.db_username
-  password               = var.db_password 
-  vpc_security_group_ids = [module.security_groups.rds_sg_id]
-  multi_az               = false
-  publicly_accessible    = false
-  skip_final_snapshot    = true
-  deletion_protection    = false 
-
-  tags = {
-    Name = "airtrail-db"
-  }
+module "db" {
+  source               = "./modules/db"
+  db_username          = var.db_username
+  db_password          = var.db_password
+  db_subnet_group_name = module.vpc.db_subnet_group_name
+  rds_sg_id            = module.security_groups.rds_sg_id
 }
 
 # ALB setup
@@ -161,7 +145,7 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
         },
         {
           name  = "DB_URL"
-          value = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.db_instance.endpoint}/airtrail?sslmode=no-verify"
+          value = "postgres://${var.db_username}:${var.db_password}@${module.db.rds_endpoint}/airtrail?sslmode=no-verify"
         },
         {
           name  = "UPLOAD_LOCATION"
