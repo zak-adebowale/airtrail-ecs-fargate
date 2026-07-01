@@ -18,44 +18,10 @@ module "iam" {
   repo_name  = var.repo_name
 }
 
-# ACM config
-
-resource "aws_acm_certificate" "airtrail_acm" {
-  domain_name       = "airtrail.adebowale.co.uk"
-  validation_method = "DNS"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  tags = {
-    Environment = "airtrail-acm-certificate"
-  }
-}
-
-resource "aws_route53_record" "acm_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.airtrail_acm.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
-
-  name    = each.value.name
-  records = [each.value.record]
-  ttl     = 60
-  type    = each.value.type
-  zone_id = data.aws_route53_zone.airtrail_route53_zone.id
-}
-
-resource "aws_acm_certificate_validation" "acm_cert_validation" {
-  certificate_arn = aws_acm_certificate.airtrail_acm.arn
-  validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
-}
-
-data "aws_route53_zone" "airtrail_route53_zone" {
-  name = "airtrail.adebowale.co.uk"
+module "route53" {
+  source = "./modules/acm"
+  domain_name = var.domain_name
+  zone_id = module.route53.zone_id
 }
 
 # RDS config
@@ -121,7 +87,7 @@ resource "aws_lb_listener" "https" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_certificate_validation.acm_cert_validation.certificate_arn
+  certificate_arn   = module.route53.cert_validation_arn
 
   default_action {
     type = "forward"
@@ -254,7 +220,7 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
 # Route 53 config
 
 resource "aws_route53_record" "airtrail_route53_record" {
-  zone_id = data.aws_route53_zone.airtrail_route53_zone.id
+  zone_id = module.route53.zone_id
   name    = "airtrail.adebowale.co.uk"
   type    = "A"
 

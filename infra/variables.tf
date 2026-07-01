@@ -25,3 +25,8 @@ variable "repo_name" {
   description = "Repo name"
   type        = string
 }
+
+variable "domain_name" {
+  description = "Domain name"
+  type        = string 
+}
