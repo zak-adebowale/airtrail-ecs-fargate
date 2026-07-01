@@ -33,5 +33,17 @@ resource "aws_acm_certificate_validation" "acm_cert_validation" {
 }
 
 data "aws_route53_zone" "airtrail_route53_zone" {
-  name = "airtrail.adebowale.co.uk"
+  name = var.domain_name
+}
+
+resource "aws_route53_record" "airtrail_route53_record" {
+  zone_id = var.zone_id
+  name    = var.domain_name
+  type    = "A"
+
+  alias {
+    name                   = var.alb_dns_name
+    zone_id                = var.alb_zone_id
+    evaluate_target_health = true
+  }
 }

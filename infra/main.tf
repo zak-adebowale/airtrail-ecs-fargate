@@ -19,9 +19,11 @@ module "iam" {
 }
 
 module "route53" {
-  source = "./modules/acm"
-  domain_name = var.domain_name
-  zone_id = module.route53.zone_id
+  source       = "./modules/acm"
+  domain_name  = var.domain_name
+  zone_id      = module.route53.zone_id
+  alb_dns_name = aws_lb.airtrail_alb.dns_name
+  alb_zone_id  = aws_lb.airtrail_alb.zone_id
 }
 
 # RDS config
@@ -215,18 +217,4 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
     aws_lb_listener.https,
     module.iam.iam_policy_attach_ecs_execution
    ]
-}
-
-# Route 53 config
-
-resource "aws_route53_record" "airtrail_route53_record" {
-  zone_id = module.route53.zone_id
-  name    = "airtrail.adebowale.co.uk"
-  type    = "A"
-
-  alias {
-    name                   = aws_lb.airtrail_alb.dns_name
-    zone_id                = aws_lb.airtrail_alb.zone_id
-    evaluate_target_health = true
-  }
 }
