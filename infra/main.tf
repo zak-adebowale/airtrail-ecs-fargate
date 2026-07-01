@@ -18,12 +18,12 @@ module "iam" {
   repo_name  = var.repo_name
 }
 
-module "route53" {
+module "acm" {
   source       = "./modules/acm"
   domain_name  = var.domain_name
-  zone_id      = module.route53.zone_id
-  alb_dns_name = aws_lb.airtrail_alb.dns_name
-  alb_zone_id  = aws_lb.airtrail_alb.zone_id
+  zone_id      = module.acm.zone_id
+  alb_dns_name = module.alb.alb_dns_name
+  alb_zone_id  = module.alb.alb_zone_id
 }
 
 module "db" {
@@ -34,72 +34,13 @@ module "db" {
   rds_sg_id            = module.security_groups.rds_sg_id
 }
 
-# ALB setup
+module "alb" {
+  source            = "./modules/alb"
+  alb_sg_id         = [module.security_groups.alb_sg_id]
+  public_subnet_ids = module.vpc.public_subnet_ids
+  vpc_id            = module.vpc.vpc_id
+  certificate_arn   = module.acm.certificate_arn
 
-resource "aws_lb" "airtrail_alb" {
-  name               = "airtrail-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [module.security_groups.alb_sg_id]
-  subnets            = module.vpc.public_subnet_ids
-
-  tags = {
-    Name = "airtrail-alb"
-  }
-}
-
-resource "aws_lb_target_group" "alb_tg" {
-  name     = "airtrail-tg"
-  port     = 3000
-  protocol = "HTTP"
-  vpc_id   = module.vpc.vpc_id
-  target_type = "ip"
-
-
-  health_check {
-    enabled             = true
-    path                = "/api/ping"
-    port                = "traffic-port"
-    protocol            = "HTTP"
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-    timeout             = 5
-    interval            = 30
-  }
-}
-
-resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.airtrail_alb.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = module.route53.cert_validation_arn
-
-  default_action {
-    type = "forward"
-
-    forward {
-      target_group {
-        arn = aws_lb_target_group.alb_tg.arn
-      }
-    }
-  }
-}
-
-resource "aws_lb_listener" "http_redirect" {
-  load_balancer_arn = aws_lb.airtrail_alb.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
 }
 
 # ECS setup
@@ -187,7 +128,7 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.alb_tg.arn
+    target_group_arn = module.alb.target_group_arn
     container_name   = "airtrail"
     container_port   = 3000
   }
@@ -198,7 +139,7 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
   }
 
   depends_on = [
-    aws_lb_listener.https,
+    module.alb.https,
     module.iam.iam_policy_attach_ecs_execution
    ]
 }

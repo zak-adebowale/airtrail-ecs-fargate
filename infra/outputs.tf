@@ -1,6 +1,6 @@
 output "alb_dns_name" {
   description = "ALB DNS name"
-  value       = aws_lb.airtrail_alb.dns_name
+  value       = module.alb.alb_dns_name
 }
 
 output "rds_endpoint" {
