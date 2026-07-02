@@ -11,5 +11,5 @@ output "rds_endpoint" {
 
 output "app_url" {
   description = "App URL"
-  value       = "https://airtrail.adebowale.co.uk"
+  value       = "https://${var.domain_name}"
 }

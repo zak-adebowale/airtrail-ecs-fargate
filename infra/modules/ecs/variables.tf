@@ -8,6 +8,11 @@ variable "ecr_repo" {
   type = string
 }
 
+variable "domain_name" {
+  description = "Domain name"
+  type        = string 
+}
+
 variable "db_username" {
   description = "RDS master username"
   type        = string 
@@ -50,4 +55,34 @@ variable "db_url" {
 variable "app_name" {
   description = "Project application name"
   type        = string
+}
+
+variable "health_check_path" {
+  description = "ALB health check path"
+  type        = string
+}
+
+variable "container_port" {
+description = "Port the app container runs on"
+type        = number
+}
+
+variable "container_cpu" {
+description = "App container cpu"
+type        = number
+}
+
+variable "container_memory" {
+description = "App container memory in MiB"
+type        = number
+}
+
+variable "retention_days" {
+description = "The number of days Cloudwatch logs are retained"
+type        = number
+}
+
+variable "desired_count" {
+description = "Number of tasks running"
+type        = number
 }

@@ -9,17 +9,16 @@ resource "aws_ecs_cluster" "airtrail_ecs_cluster" {
 
 resource "aws_cloudwatch_log_group" "airtrail_cloudwatch" {
   name              = "/ecs/${var.app_name}"
-  retention_in_days = 7
+  retention_in_days = var.retention_days
 }
 
 resource "aws_ecs_task_definition" "airtrail_task_definition" {
   family                   = var.app_name
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "1024"
-  memory                   = "2048"
+  cpu                      = var.container_cpu
+  memory                   = var.container_memory
   execution_role_arn       = var.execution_role_arn
-  task_role_arn            = var.execution_role_arn
   container_definitions    = jsonencode([
     {
       name  = "airtrail"
@@ -27,7 +26,7 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
     
       portMappings = [
         { 
-          containerPort = 3000
+          containerPort = var.container_port
           protocol      = "tcp"
         }
       ]
@@ -35,7 +34,7 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
       environment = [ 
         {
           name  = "ORIGIN"
-          value = "https://airtrail.adebowale.co.uk"
+          value = "https://${var.domain_name}"
         },
         {
           name  = "DB_URL"
@@ -48,7 +47,7 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
       ]
   
       health_check = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:3000/api/ping || exit 1"]
+        command     = ["CMD-SHELL", "curl -f http://localhost:${var.container_port}${var.health_check_path} || exit 1"]
         interval    = 30 
         timeout     = 5
         startPeriod = 60
@@ -71,7 +70,7 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
   name            = "${var.app_name}-service"
   cluster         = aws_ecs_cluster.airtrail_ecs_cluster.id
   task_definition = aws_ecs_task_definition.airtrail_task_definition.arn
-  desired_count   = 1
+  desired_count   = var.desired_count
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -83,7 +82,7 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
   load_balancer {
     target_group_arn = var.alb_target_group_arn
     container_name   = var.app_name
-    container_port   = 3000
+    container_port   = var.container_port
   }
 
   deployment_circuit_breaker {
