@@ -1,5 +1,6 @@
 module "vpc" {
   source     = "./modules/vpc"
+  app_name = var.app_name
   aws_region = var.aws_region
 }
 

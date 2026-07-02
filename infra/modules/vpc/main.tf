@@ -2,7 +2,7 @@ resource "aws_vpc" "ecs_project_vpc" {
   cidr_block = "10.0.0.0/16"
 
   tags = {
-    Name = "airtrail-vpc"
+    Name = "${var.app_name}-vpc"
   }
 }
 
@@ -13,7 +13,7 @@ resource "aws_subnet" "public_subnet_1" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "airtrail-public-subnet-1"
+    Name = "${var.app_name}-public-subnet-1"
   }
 }
 
@@ -24,7 +24,7 @@ resource "aws_subnet" "public_subnet_2" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "airtrail-public-subnet-2"
+    Name = "${var.app_name}-public-subnet-2"
   }
 }
 
@@ -35,7 +35,7 @@ resource "aws_subnet" "private_subnet_1" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "airtrail-private-subnet-1"
+    Name = "${var.app_name}-private-subnet-1"
   }
 }
 
@@ -46,7 +46,7 @@ resource "aws_subnet" "private_subnet_2" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "airtrail-private-subnet-2"
+    Name = "${var.app_name}-private-subnet-2"
   }
 }
 
@@ -66,7 +66,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id     = aws_vpc.ecs_project_vpc.id
 
   tags = {
-    Name = "airtrail-igw"
+    Name = "${var.app_name}-igw"
   }
 }
 
@@ -74,7 +74,7 @@ resource "aws_eip" "ngw_eip_1" {
   domain = "vpc"
 
   tags = {
-    Name = "airtrail-ngw-eip-1"
+    Name = "${var.app_name}-ngw-eip-1"
   }
 }
 
@@ -82,7 +82,7 @@ resource "aws_eip" "ngw_eip_2" {
   domain = "vpc"
 
   tags = {
-    Name = "airtrail-ngw-eip-2"
+    Name = "${var.app_name}-ngw-eip-2"
   }
 }
 
@@ -113,7 +113,7 @@ resource "aws_route_table" "public_rt" {
   }
   
   tags = {
-    Name = "airtrail-public-rt"
+    Name = "${var.app_name}-public-rt"
   }
 }
 
@@ -126,7 +126,7 @@ resource "aws_route_table" "private_rt_1" {
   }
 
   tags = {
-    Name = "airtrail-private-rt-1"
+    Name = "${var.app_name}-private-rt-1"
   }
 }
 
@@ -139,7 +139,7 @@ resource "aws_route_table" "private_rt_2" {
   }
 
   tags = {
-    Name = "airtrail-private-rt-2"
+    Name = "${var.app_name}-private-rt-2"
   }
 }
 

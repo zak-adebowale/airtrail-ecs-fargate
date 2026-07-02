@@ -30,3 +30,8 @@ variable "domain_name" {
   description = "Domain name"
   type        = string 
 }
+
+variable "app_name" {
+  description = "Project application name"
+  type = string
+}
