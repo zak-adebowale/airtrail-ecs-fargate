@@ -138,3 +138,20 @@ type        = bool
 default     = false
 }
 
+variable "container_port" {
+description = "Port the app container runs on"
+type        = number
+default     = 3000
+}
+
+variable "health_check_path" {
+  description = "ALB health check path"
+  type        = string
+  default     = "/api/ping"
+}
+
+variable "ssl_policy" {
+  description = "Web traffic ssl policy"
+  type        = string
+}
+

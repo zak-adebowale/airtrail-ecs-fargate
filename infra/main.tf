@@ -67,6 +67,9 @@ module "alb" {
   public_subnet_ids = module.vpc.public_subnet_ids
   vpc_id            = module.vpc.vpc_id
   certificate_arn   = module.acm.certificate_arn
+  container_port    = var.container_port
+  health_check_path = var.health_check_path
+  ssl_policy        = var.ssl_policy
 }
 
 module "ecs" {

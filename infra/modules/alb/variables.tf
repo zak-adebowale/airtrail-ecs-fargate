@@ -22,3 +22,18 @@ variable "app_name" {
   description = "Project application name"
   type        = string
 }
+
+variable "container_port" {
+description = "Port the app container runs on"
+type        = number
+}
+
+variable "health_check_path" {
+  description = "ALB health check path"
+  type        = string
+}
+
+variable "ssl_policy" {
+  description = "Web traffic ssl policy"
+  type        = string
+}
