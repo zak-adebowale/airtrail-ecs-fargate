@@ -22,3 +22,8 @@ variable "app_name" {
   description = "Project application name"
   type        = string
 }
+
+variable "dns_ttl" {
+  description = "Domain DNS TTL"
+  type        = string
+}

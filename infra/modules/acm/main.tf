@@ -22,7 +22,7 @@ resource "aws_route53_record" "acm_validation" {
 
   name    = each.value.name
   records = [each.value.record]
-  ttl     = 60
+  ttl     = var.dns_ttl
   type    = each.value.type
   zone_id = var.zone_id
 }

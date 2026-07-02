@@ -39,6 +39,7 @@ module "acm" {
   zone_id      = module.acm.zone_id
   alb_dns_name = module.alb.alb_dns_name
   alb_zone_id  = module.alb.alb_zone_id
+  dns_ttl      = var.dns_ttl
 
 }
 

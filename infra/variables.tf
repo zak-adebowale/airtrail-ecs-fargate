@@ -83,3 +83,9 @@ variable "all_ip_cidr" {
   type        = string
   default     = "0.0.0.0/0"
 }
+
+variable "dns_ttl" {
+  description = "Domain DNS TTL"
+  type        = string
+  default     = "60"
+}
