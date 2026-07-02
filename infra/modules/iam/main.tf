@@ -1,5 +1,5 @@
 resource "aws_iam_role" "ecs_execution" {
-  name = "airtrail-execution-role"
+  name = "${var.app_name}-execution-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -45,7 +45,7 @@ resource "aws_iam_role" "github_actions" {
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:zach-adebowale/airtrail-ecs-fargate:*"
+            "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.repo_name}:*"
           }
           StringEquals = {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
