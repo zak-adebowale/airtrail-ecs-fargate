@@ -46,10 +46,18 @@ module "acm" {
 module "db" {
   source               = "./modules/db"
   app_name             = var.app_name
+  db_name              = var.db_name
   db_username          = var.db_username
   db_password          = var.db_password
   db_subnet_group_name = module.vpc.db_subnet_group_name
+  db_instance_class    = var.db_instance_class
   rds_sg_id            = module.security_groups.rds_sg_id
+  allocated_storage    = var.allocated_storage
+  engine_version       = var.engine_version
+  storage_type         = var.storage_type 
+  multi_az             = var.multi_az
+  skip_final_snapshot  = var.skip_final_snapshot
+  deletion_protection  = var.deletion_protection
 }
 
 module "alb" {

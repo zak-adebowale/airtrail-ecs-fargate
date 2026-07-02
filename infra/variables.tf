@@ -85,7 +85,56 @@ variable "all_ip_cidr" {
 }
 
 variable "dns_ttl" {
-  description = "Domain DNS TTL"
-  type        = string
+  description = "Domain DNS TTL in seconds"
+  type        = number
   default     = "60"
 }
+
+variable "db_instance_class" {
+  description = "Instance type"
+  type        = string
+  default     = "db.t3.micro"
+}
+
+variable "allocated_storage" {
+  description = "Allocated db storage"
+  type        = string
+  default     = "20"
+}
+
+variable "engine_version" {
+  description = "Db engine version"
+  type        = string
+  default     = "16.14"
+}
+
+variable "storage_type" {
+  description = "Db storage type"
+  type        = string
+  default     = "gp3"
+}
+
+variable "db_name" {
+  description = "Name of the db inside RDS instance"
+  type        = string
+  default     = "airtrail"
+}
+
+variable "multi_az" {
+  description = "Whether to deploy a standy replica in a 2nd az for auto failover. True for prod, False for dev/staging"
+  type        = bool
+  default     = "false"
+}
+
+variable "skip_final_snapshot" {
+description = "If true no final snapshot upon db instance deletion. Should be false in prod to prevent accidental data loss in teardown"
+type        = bool
+default     = true
+}
+
+variable "deletion_protection" {
+description = "Should be true in prod as a safeguard against accidental deletion"
+type        = bool
+default     = false
+}
+
