@@ -7,9 +7,9 @@ resource "aws_vpc" "ecs_project_vpc" {
 }
 
 resource "aws_subnet" "public_subnet_1" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-  cidr_block = "10.0.1.0/24"
-  availability_zone = "eu-west-2a"
+  vpc_id                  = aws_vpc.ecs_project_vpc.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "eu-west-2a"
   map_public_ip_on_launch = true
 
   tags = {
@@ -18,9 +18,9 @@ resource "aws_subnet" "public_subnet_1" {
 }
 
 resource "aws_subnet" "public_subnet_2" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-  cidr_block = "10.0.2.0/24"
-  availability_zone = "eu-west-2b"
+  vpc_id                  = aws_vpc.ecs_project_vpc.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "eu-west-2b"
   map_public_ip_on_launch = true
 
   tags = {
@@ -29,9 +29,9 @@ resource "aws_subnet" "public_subnet_2" {
 }
 
 resource "aws_subnet" "private_subnet_1" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-  cidr_block = "10.0.3.0/24"
-  availability_zone = "eu-west-2a"
+  vpc_id                  = aws_vpc.ecs_project_vpc.id
+  cidr_block              = "10.0.3.0/24"
+  availability_zone       = "eu-west-2a"
   map_public_ip_on_launch = false
 
   tags = {
@@ -40,9 +40,9 @@ resource "aws_subnet" "private_subnet_1" {
 }
 
 resource "aws_subnet" "private_subnet_2" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
-  cidr_block = "10.0.4.0/24"
-  availability_zone = "eu-west-2b"
+  vpc_id                  = aws_vpc.ecs_project_vpc.id
+  cidr_block              = "10.0.4.0/24"
+  availability_zone       = "eu-west-2b"
   map_public_ip_on_launch = false
 
   tags = {
@@ -63,7 +63,7 @@ resource "aws_db_subnet_group" "db_sub_group" {
 }
 
 resource "aws_internet_gateway" "igw" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
+  vpc_id = aws_vpc.ecs_project_vpc.id
 
   tags = {
     Name = "${var.app_name}-igw"
@@ -105,7 +105,7 @@ resource "aws_nat_gateway" "ngw_2" {
 }
 
 resource "aws_route_table" "public_rt" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
+  vpc_id = aws_vpc.ecs_project_vpc.id
 
   route {
   cidr_block = "0.0.0.0/0"
@@ -118,10 +118,10 @@ resource "aws_route_table" "public_rt" {
 }
 
 resource "aws_route_table" "private_rt_1" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
+  vpc_id = aws_vpc.ecs_project_vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.ngw_1.id
   }
 
@@ -131,10 +131,10 @@ resource "aws_route_table" "private_rt_1" {
 }
 
 resource "aws_route_table" "private_rt_2" {
-  vpc_id     = aws_vpc.ecs_project_vpc.id
+  vpc_id = aws_vpc.ecs_project_vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.ngw_2.id
   }
 
