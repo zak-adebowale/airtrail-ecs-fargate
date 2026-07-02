@@ -24,6 +24,6 @@ variable "app_name" {
 }
 
 variable "dns_ttl" {
-  description = "Domain DNS TTL"
-  type        = string
+  description = "Domain DNS TTL in seconds"
+  type        = number
 }
