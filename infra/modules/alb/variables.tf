@@ -17,3 +17,8 @@ variable "certificate_arn" {
   description = "ACM certificate arn"
   type        = string
 }
+
+variable "app_name" {
+  description = "Project application name"
+  type        = string
+}

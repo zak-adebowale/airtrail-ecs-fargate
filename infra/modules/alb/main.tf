@@ -1,17 +1,17 @@
 resource "aws_lb" "airtrail_alb" {
-  name               = "airtrail-alb"
+  name               = "${var.app_name}-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = var.alb_sg_id
   subnets            = var.public_subnet_ids
 
   tags = {
-    Name = "airtrail-alb"
+    Name = "${var.app_name}-alb"
   }
 }
 
 resource "aws_lb_target_group" "alb_tg" {
-  name     = "airtrail-tg"
+  name     = "${var.app_name}-tg"
   port     = 3000
   protocol = "HTTP"
   vpc_id   = var.vpc_id

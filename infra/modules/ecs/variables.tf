@@ -46,3 +46,8 @@ variable "db_url" {
   type        = string
   sensitive   = true
 }
+
+variable "app_name" {
+  description = "Project application name"
+  type        = string
+}

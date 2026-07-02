@@ -7,7 +7,7 @@ resource "aws_acm_certificate" "airtrail_acm" {
   }
 
   tags = {
-    Environment = "airtrail-acm-certificate"
+    Environment = "${var.app_name}-acm-certificate"
   }
 }
 

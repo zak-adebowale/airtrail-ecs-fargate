@@ -32,7 +32,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 }
 
 resource "aws_iam_role" "github_actions" {
-  name = "airtrail-github-actions-role"
+  name = "${var.app_name}-github-actions-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -57,7 +57,7 @@ resource "aws_iam_role" "github_actions" {
 }
 
 resource "aws_iam_role_policy" "github_actions" {
-  name = "airtrail-github-actions-policy"
+  name = "${var.app_name}-github-actions-policy"
   role = aws_iam_role.github_actions.id
 
   policy = jsonencode({
