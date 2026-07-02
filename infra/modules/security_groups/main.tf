@@ -1,5 +1,3 @@
-# Security groups config
-
 resource "aws_security_group" "ecs_sg" {
   name        = "ecs_sg"
   description = "Allow inbound from ALB"
