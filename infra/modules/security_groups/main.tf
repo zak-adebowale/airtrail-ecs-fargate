@@ -15,10 +15,10 @@ resource "aws_security_group" "ecs_sg" {
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = [var.all_ip_cidr]
     }
   tags = {
-    Name = "ecs-sg"
+    Name = "${var.app_name}-ecs-sg"
   }
 }
 
@@ -31,25 +31,25 @@ resource "aws_security_group" "alb_sg" {
         from_port   = 80
         to_port     = 80
         protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = [var.all_ip_cidr]
     }
 
     ingress {
         from_port   = 443
         to_port     = 443
         protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = [var.all_ip_cidr]
     }
 
     egress {
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = [var.all_ip_cidr]
     }
 
     tags = {
-      Name = "alb-sg"
+      Name = "${var.app_name}-alb-sg"
   }
 }
 
@@ -69,10 +69,10 @@ resource "aws_security_group" "rds_sg" {
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = [var.all_ip_cidr]
     }
 
     tags = {
-      Name = "rds-sg"
+      Name = "${var.app_name}-rds-sg"
   }    
 }

@@ -13,8 +13,11 @@ module "vpc" {
 }
 
 module "security_groups" {
-  source = "./modules/security_groups"
-  vpc_id = module.vpc.vpc_id
+  source      = "./modules/security_groups"
+  app_name    = var.app_name
+  vpc_id      = module.vpc.vpc_id
+  all_ip_cidr = var.all_ip_cidr 
+
 }
 
 module "ecr" {
