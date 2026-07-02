@@ -1,7 +1,15 @@
 module "vpc" {
-  source     = "./modules/vpc"
-  app_name   = var.app_name
-  aws_region = var.aws_region
+  source                = "./modules/vpc"
+  app_name              = var.app_name
+  aws_region            = var.aws_region
+  az_1                  = var.az_1
+  az_2                  = var.az_2
+  vpc_cidr              = var.vpc_cidr
+  all_ip_cidr           = var.all_ip_cidr 
+  public_subnet_1_cidr  = var.public_subnet_1_cidr
+  public_subnet_2_cidr  = var.public_subnet_2_cidr
+  private_subnet_1_cidr = var.private_subnet_1_cidr
+  private_subnet_2_cidr = var.private_subnet_2_cidr
 }
 
 module "security_groups" {
