@@ -10,6 +10,7 @@ infra/tfplan
 
 app/node_modules/
 app/build/
+session-manager-plugin.pkg
 
 .DS_Store
 Thumbs.db
