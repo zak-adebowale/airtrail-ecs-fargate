@@ -35,6 +35,8 @@ RUN chmod +x \
   /app/bin/airtrail-admin \
   /app/bin/airtrail-healthcheck
 
+RUN mkdir -p /app/uploads && chown -R node:node /app/uploads
+
 ENV PATH="${PATH}:/app/bin"
 
 USER node

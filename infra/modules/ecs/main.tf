@@ -67,11 +67,12 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
 }
 
 resource "aws_ecs_service" "airtrail_ecs_service" {
-  name            = "${var.app_name}-service"
-  cluster         = aws_ecs_cluster.airtrail_ecs_cluster.id
-  task_definition = aws_ecs_task_definition.airtrail_task_definition.arn
-  desired_count   = var.desired_count
-  launch_type     = "FARGATE"
+  name                   = "${var.app_name}-service"
+  cluster                = aws_ecs_cluster.airtrail_ecs_cluster.id
+  task_definition        = aws_ecs_task_definition.airtrail_task_definition.arn
+  desired_count          = var.desired_count
+  launch_type            = "FARGATE"
+  enable_execute_command = true
 
   network_configuration {
     subnets          = var.private_subnet_ids
