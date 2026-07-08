@@ -72,7 +72,6 @@ resource "aws_ecs_service" "airtrail_ecs_service" {
   task_definition        = aws_ecs_task_definition.airtrail_task_definition.arn
   desired_count          = var.desired_count
   launch_type            = "FARGATE"
-  enable_execute_command = true
 
   network_configuration {
     subnets          = var.private_subnet_ids
