@@ -21,7 +21,7 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
   execution_role_arn       = var.execution_role_arn
   container_definitions = jsonencode([
     {
-      name  = "airtrail"
+      name  = var.app_name
       image = "${var.ecr_repo}:latest"
 
       portMappings = [

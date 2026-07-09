@@ -5,7 +5,7 @@ resource "aws_db_instance" "db_instance" {
   engine                 = "postgres"
   engine_version         = var.engine_version
   storage_type           = var.storage_type
-  identifier             = "${var.app_name}-db"
+  identifier             = "${var.app_name}-${var.environment}-db"
   instance_class         = var.db_instance_class
   username               = var.db_username
   password               = var.db_password
@@ -16,6 +16,6 @@ resource "aws_db_instance" "db_instance" {
   deletion_protection    = var.deletion_protection
 
   tags = {
-    Name = "${var.app_name}-db"
+    Name = "${var.app_name}-${var.environment}-db"
   }
 }

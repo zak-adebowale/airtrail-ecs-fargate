@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "airtrail" {
-  name                 = var.app_name
+  name                 = "${var.app_name}-${var.environment}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -7,6 +7,6 @@ resource "aws_ecr_repository" "airtrail" {
   }
 
   tags = {
-    Name = "${var.app_name}-ecr"
+    Name = "${var.app_name}-${var.environment}-ecr"
   }
 }
