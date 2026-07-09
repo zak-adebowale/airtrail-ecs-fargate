@@ -3,6 +3,11 @@ variable "execution_role_arn" {
   type        = string
 }
 
+variable "environment" {
+  description = "Deployment environment (dev or prod)"
+  type        = string
+}
+
 variable "ecr_repo" {
   description = "ECR repo image"
   type = string

@@ -3,6 +3,11 @@ variable "alb_sg_id" {
   type        = list(string)
 }
 
+variable "environment" {
+  description = "Deployment environment (dev or prod)"
+  type        = string
+}
+
 variable "public_subnet_ids" {
   description = "ID of the public subnets"
   type        = list(string)

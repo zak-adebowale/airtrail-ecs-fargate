@@ -9,6 +9,11 @@ variable "app_name" {
   type        = string
 }
 
+variable "environment" {
+  description = "Deployment environment (dev or prod)"
+  type        = string
+}
+
 variable "vpc_cidr" {
   description = "CIDR for the VPC"
   type        = string
