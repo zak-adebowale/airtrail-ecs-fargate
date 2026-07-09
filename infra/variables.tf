@@ -10,6 +10,11 @@ variable "db_password" {
   sensitive   = true
 }
 
+variable "environment" {
+  description = "Deployment environment (dev or prod)"
+  type        = string
+}
+
 variable "aws_region" {
   description = "AWS region"
   type        = string 

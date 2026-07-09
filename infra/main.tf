@@ -1,5 +1,6 @@
 module "vpc" {
   source                = "./modules/vpc"
+  environment           = var.environment
   app_name              = var.app_name
   aws_region            = var.aws_region
   az_1                  = var.az_1
@@ -14,6 +15,7 @@ module "vpc" {
 
 module "security_groups" {
   source      = "./modules/security_groups"
+  environment = var.environment
   app_name    = var.app_name
   vpc_id      = module.vpc.vpc_id
   all_ip_cidr = var.all_ip_cidr 
@@ -21,19 +23,22 @@ module "security_groups" {
 }
 
 module "ecr" {
-  source   = "./modules/ecr"
-  app_name = var.app_name
+  source      = "./modules/ecr"
+  environment = var.environment
+  app_name    = var.app_name
 }
 
 module "iam" {
-  source     = "./modules/iam"
-  app_name   = var.app_name
-  github_org = var.github_org
-  repo_name  = var.repo_name
+  source      = "./modules/iam"
+  environment = var.environment
+  app_name    = var.app_name
+  github_org  = var.github_org
+  repo_name   = var.repo_name
 }
 
 module "acm" {
   source       = "./modules/acm"
+  environment  = var.environment
   app_name     = var.app_name
   domain_name  = var.domain_name
   zone_id      = module.acm.zone_id
@@ -45,6 +50,7 @@ module "acm" {
 
 module "db" {
   source               = "./modules/db"
+  environment          = var.environment
   app_name             = var.app_name
   db_name              = var.db_name
   db_username          = var.db_username
@@ -62,6 +68,7 @@ module "db" {
 
 module "alb" {
   source            = "./modules/alb"
+  environment       = var.environment
   app_name          = var.app_name
   alb_sg_id         = [module.security_groups.alb_sg_id]
   public_subnet_ids = module.vpc.public_subnet_ids
@@ -74,6 +81,7 @@ module "alb" {
 
 module "ecs" {
   source               = "./modules/ecs"
+  environment          = var.environment
   app_name             = var.app_name
   execution_role_arn   = module.iam.iam_ecs_execution
   ecr_repo             = module.ecr.ecr_repo
