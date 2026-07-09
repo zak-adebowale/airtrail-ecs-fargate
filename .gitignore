@@ -5,6 +5,8 @@
 infra/.terraform/
 infra/.terraform.lock.hcl
 infra/**/*.tfvars
+**/*.tfstate
+**/*.tfstate.backup
 infra/*.tfplan
 infra/tfplan
 
