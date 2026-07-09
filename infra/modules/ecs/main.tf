@@ -1,5 +1,5 @@
 resource "aws_ecs_cluster" "airtrail_ecs_cluster" {
-  name = "${var.app_name}-cluster"
+  name = "${var.app_name}-${var.environment}-cluster"
 
   setting {
     name  = "containerInsights"
@@ -8,30 +8,30 @@ resource "aws_ecs_cluster" "airtrail_ecs_cluster" {
 }
 
 resource "aws_cloudwatch_log_group" "airtrail_cloudwatch" {
-  name              = "/ecs/${var.app_name}"
+  name              = "/ecs/${var.app_name}-${var.environment}"
   retention_in_days = var.retention_days
 }
 
 resource "aws_ecs_task_definition" "airtrail_task_definition" {
-  family                   = var.app_name
+  family                   = "${var.app_name}-${var.environment}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.container_cpu
   memory                   = var.container_memory
   execution_role_arn       = var.execution_role_arn
-  container_definitions    = jsonencode([
+  container_definitions = jsonencode([
     {
       name  = "airtrail"
       image = "${var.ecr_repo}:latest"
-    
+
       portMappings = [
-        { 
+        {
           containerPort = var.container_port
           protocol      = "tcp"
         }
       ]
 
-      environment = [ 
+      environment = [
         {
           name  = "ORIGIN"
           value = "https://${var.domain_name}"
@@ -45,10 +45,10 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
           value = "/app/uploads"
         }
       ]
-  
+
       health_check = {
         command     = ["CMD-SHELL", "curl -f http://localhost:${var.container_port}${var.health_check_path} || exit 1"]
-        interval    = 30 
+        interval    = 30
         timeout     = 5
         startPeriod = 60
         retries     = 3
@@ -57,7 +57,7 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = "/ecs/${var.app_name}"
+          awslogs-group         = "/ecs/${var.app_name}-${var.environment}"
           awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
         }
@@ -67,11 +67,11 @@ resource "aws_ecs_task_definition" "airtrail_task_definition" {
 }
 
 resource "aws_ecs_service" "airtrail_ecs_service" {
-  name                   = "${var.app_name}-service"
-  cluster                = aws_ecs_cluster.airtrail_ecs_cluster.id
-  task_definition        = aws_ecs_task_definition.airtrail_task_definition.arn
-  desired_count          = var.desired_count
-  launch_type            = "FARGATE"
+  name            = "${var.app_name}-${var.environment}-service"
+  cluster         = aws_ecs_cluster.airtrail_ecs_cluster.id
+  task_definition = aws_ecs_task_definition.airtrail_task_definition.arn
+  desired_count   = var.desired_count
+  launch_type     = "FARGATE"
 
   network_configuration {
     subnets          = var.private_subnet_ids

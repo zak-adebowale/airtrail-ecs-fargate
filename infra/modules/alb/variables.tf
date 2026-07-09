@@ -29,8 +29,8 @@ variable "app_name" {
 }
 
 variable "container_port" {
-description = "Port the app container runs on"
-type        = number
+  description = "Port the app container runs on"
+  type        = number
 }
 
 variable "health_check_path" {

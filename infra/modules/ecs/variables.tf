@@ -10,30 +10,30 @@ variable "environment" {
 
 variable "ecr_repo" {
   description = "ECR repo image"
-  type = string
+  type        = string
 }
 
 variable "domain_name" {
   description = "Domain name"
-  type        = string 
+  type        = string
 }
 
 variable "db_username" {
   description = "RDS master username"
-  type        = string 
+  type        = string
   sensitive   = true
 }
 
 variable "db_password" {
   description = "RDS master password"
-  type        = string 
+  type        = string
   sensitive   = true
 }
 
 variable "aws_region" {
   description = "AWS region"
-  type        = string 
-  default     = "eu-west-2"  
+  type        = string
+  default     = "eu-west-2"
 }
 
 variable "private_subnet_ids" {
@@ -68,26 +68,26 @@ variable "health_check_path" {
 }
 
 variable "container_port" {
-description = "Port the app container runs on"
-type        = number
+  description = "Port the app container runs on"
+  type        = number
 }
 
 variable "container_cpu" {
-description = "App container cpu"
-type        = number
+  description = "App container cpu"
+  type        = number
 }
 
 variable "container_memory" {
-description = "App container memory in MiB"
-type        = number
+  description = "App container memory in MiB"
+  type        = number
 }
 
 variable "retention_days" {
-description = "The number of days Cloudwatch logs are retained"
-type        = number
+  description = "The number of days Cloudwatch logs are retained"
+  type        = number
 }
 
 variable "desired_count" {
-description = "Number of tasks running"
-type        = number
+  description = "Number of tasks running"
+  type        = number
 }

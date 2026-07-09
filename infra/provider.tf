@@ -10,13 +10,13 @@ terraform {
 }
 
 provider "aws" {
-    region = "eu-west-2"
+  region = "eu-west-2"
 
-    default_tags {
-        tags = {
-            Project = "airtrail-ecs-fargate"
-            Environment = "dev"
-            ManagedBy = "terraform"
-        }
+  default_tags {
+    tags = {
+      Project     = "airtrail-ecs-fargate"
+      Environment = "dev"
+      ManagedBy   = "terraform"
     }
+  }
 }

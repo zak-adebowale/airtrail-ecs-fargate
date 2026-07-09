@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "airtrail" {
-  name = var.app_name
+  name                 = var.app_name
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

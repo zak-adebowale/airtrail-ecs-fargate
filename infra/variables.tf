@@ -1,12 +1,12 @@
 variable "db_username" {
   description = "RDS master username"
-  type        = string 
+  type        = string
   sensitive   = true
 }
 
 variable "db_password" {
   description = "RDS master password"
-  type        = string 
+  type        = string
   sensitive   = true
 }
 
@@ -17,8 +17,8 @@ variable "environment" {
 
 variable "aws_region" {
   description = "AWS region"
-  type        = string 
-  default     = "eu-west-2"  
+  type        = string
+  default     = "eu-west-2"
 }
 
 variable "github_org" {
@@ -33,7 +33,7 @@ variable "repo_name" {
 
 variable "domain_name" {
   description = "Domain name"
-  type        = string 
+  type        = string
 }
 
 variable "app_name" {
@@ -73,13 +73,13 @@ variable "private_subnet_2_cidr" {
 
 variable "az_1" {
   description = "Availability zone 1"
-  type        = string 
+  type        = string
   default     = "eu-west-2a"
 }
 
 variable "az_2" {
   description = "Availability zone 2"
-  type        = string 
+  type        = string
   default     = "eu-west-2b"
 }
 
@@ -132,21 +132,21 @@ variable "multi_az" {
 }
 
 variable "skip_final_snapshot" {
-description = "If true no final snapshot upon db instance deletion. Should be false in prod to prevent accidental data loss in teardown"
-type        = bool
-default     = true
+  description = "If true no final snapshot upon db instance deletion. Should be false in prod to prevent accidental data loss in teardown"
+  type        = bool
+  default     = true
 }
 
 variable "deletion_protection" {
-description = "Should be true in prod as a safeguard against accidental deletion"
-type        = bool
-default     = false
+  description = "Should be true in prod as a safeguard against accidental deletion"
+  type        = bool
+  default     = false
 }
 
 variable "container_port" {
-description = "Port the app container runs on"
-type        = number
-default     = 3000
+  description = "Port the app container runs on"
+  type        = number
+  default     = 3000
 }
 
 variable "health_check_path" {
@@ -161,27 +161,27 @@ variable "ssl_policy" {
 }
 
 variable "container_cpu" {
-description = "App container cpu"
-type        = number
-default     = 1024
+  description = "App container cpu"
+  type        = number
+  default     = 1024
 }
 
 variable "container_memory" {
-description = "App container memory in MiB"
-type        = number
-default     = 2048
+  description = "App container memory in MiB"
+  type        = number
+  default     = 2048
 }
 
 variable "retention_days" {
-description = "Number of days Cloudwatch logs are retained"
-type        = number
-default     = 7
+  description = "Number of days Cloudwatch logs are retained"
+  type        = number
+  default     = 7
 }
 
 variable "desired_count" {
-description = "Number of tasks running"
-type        = number
-default     = 1
+  description = "Number of tasks running"
+  type        = number
+  default     = 1
 }
 
 

@@ -6,7 +6,7 @@ module "vpc" {
   az_1                  = var.az_1
   az_2                  = var.az_2
   vpc_cidr              = var.vpc_cidr
-  all_ip_cidr           = var.all_ip_cidr 
+  all_ip_cidr           = var.all_ip_cidr
   public_subnet_1_cidr  = var.public_subnet_1_cidr
   public_subnet_2_cidr  = var.public_subnet_2_cidr
   private_subnet_1_cidr = var.private_subnet_1_cidr
@@ -18,7 +18,7 @@ module "security_groups" {
   environment = var.environment
   app_name    = var.app_name
   vpc_id      = module.vpc.vpc_id
-  all_ip_cidr = var.all_ip_cidr 
+  all_ip_cidr = var.all_ip_cidr
 
 }
 
@@ -60,7 +60,7 @@ module "db" {
   rds_sg_id            = module.security_groups.rds_sg_id
   allocated_storage    = var.allocated_storage
   engine_version       = var.engine_version
-  storage_type         = var.storage_type 
+  storage_type         = var.storage_type
   multi_az             = var.multi_az
   skip_final_snapshot  = var.skip_final_snapshot
   deletion_protection  = var.deletion_protection
@@ -101,7 +101,7 @@ module "ecs" {
   db_url               = "postgres://${var.db_username}:${var.db_password}@${module.db.rds_endpoint}/airtrail?sslmode=no-verify"
 
   depends_on = [
-  module.alb,
-  module.iam
+    module.alb,
+    module.iam
   ]
 }
