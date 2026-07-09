@@ -20,17 +20,6 @@ resource "aws_iam_role_policy_attachment" "ecs_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-resource "aws_iam_openid_connect_provider" "github" {
-  url = "https://token.actions.githubusercontent.com"
-
-  client_id_list = [
-    "sts.amazonaws.com",
-  ]
-
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
-
-}
-
 resource "aws_iam_role" "github_actions" {
   name = "${var.app_name}-${var.environment}-github-actions-role"
 
@@ -40,7 +29,7 @@ resource "aws_iam_role" "github_actions" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = aws_iam_openid_connect_provider.github.arn
+          Federated = var.oidc_provider_arn
         }        
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {

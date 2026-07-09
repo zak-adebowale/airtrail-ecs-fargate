@@ -29,11 +29,12 @@ module "ecr" {
 }
 
 module "iam" {
-  source      = "./modules/iam"
-  environment = var.environment
-  app_name    = var.app_name
-  github_org  = var.github_org
-  repo_name   = var.repo_name
+  source            = "./modules/iam"
+  environment       = var.environment
+  app_name          = var.app_name
+  github_org        = var.github_org
+  repo_name         = var.repo_name
+  oidc_provider_arn = aws_iam_openid_connect_provider.github
 }
 
 module "acm" {
@@ -104,4 +105,15 @@ module "ecs" {
     module.alb,
     module.iam
   ]
+}
+
+resource "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
+
+  client_id_list = [
+    "sts.amazonaws.com",
+  ]
+
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+
 }
