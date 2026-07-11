@@ -37,12 +37,12 @@ module "iam" {
 }
 
 module "acm" {
-  source       = "./modules/acm"
-  environment  = var.environment
-  app_name     = var.app_name
-  domain_name  = var.domain_name
-  zone_id      = var.zone_id
-  dns_ttl      = var.dns_ttl
+  source      = "./modules/acm"
+  environment = var.environment
+  app_name    = var.app_name
+  domain_name = var.domain_name
+  zone_id     = var.zone_id
+  dns_ttl     = var.dns_ttl
 }
 
 module "route_53" {

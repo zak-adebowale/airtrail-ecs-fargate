@@ -39,9 +39,9 @@ resource "aws_lb_listener" "https" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.alb_tg.arn
-    }
   }
-  
+}
+
 resource "aws_lb_listener" "http_redirect" {
   load_balancer_arn = aws_lb.airtrail_alb.arn
   port              = 80

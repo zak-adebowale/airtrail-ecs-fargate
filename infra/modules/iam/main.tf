@@ -30,7 +30,7 @@ resource "aws_iam_role" "github_actions" {
         Effect = "Allow"
         Principal = {
           Federated = var.oidc_provider_arn
-        }        
+        }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringLike = {
@@ -74,5 +74,5 @@ resource "aws_iam_role_policy" "github_actions" {
         Resource = "*"
       }
     ]
-  })     
+  })
 }
