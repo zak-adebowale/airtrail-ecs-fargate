@@ -19,7 +19,6 @@ module "security_groups" {
   app_name    = var.app_name
   vpc_id      = module.vpc.vpc_id
   all_ip_cidr = var.all_ip_cidr
-
 }
 
 module "ecr" {
@@ -34,7 +33,7 @@ module "iam" {
   app_name          = var.app_name
   github_org        = var.github_org
   repo_name         = var.repo_name
-  oidc_provider_arn = aws_iam_openid_connect_provider.github
+  oidc_provider_arn = aws_iam_openid_connect_provider.github.arn
 }
 
 module "acm" {
@@ -42,11 +41,17 @@ module "acm" {
   environment  = var.environment
   app_name     = var.app_name
   domain_name  = var.domain_name
-  zone_id      = module.acm.zone_id
+  zone_id      = var.zone_id
+  dns_ttl      = var.dns_ttl
+}
+
+module "route_53" {
+  source       = "./modules/route_53"
+  environment  = var.environment
+  domain_name  = var.domain_name
+  zone_id      = var.zone_id
   alb_dns_name = module.alb.alb_dns_name
   alb_zone_id  = module.alb.alb_zone_id
-  dns_ttl      = var.dns_ttl
-
 }
 
 module "db" {

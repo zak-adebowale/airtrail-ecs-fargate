@@ -1,17 +1,17 @@
 resource "aws_lb" "airtrail_alb" {
-  name               = "${var.app_name}-alb"
+  name               = "${var.app_name}-${var.environment}-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = var.alb_sg_id
   subnets            = var.public_subnet_ids
 
   tags = {
-    Name = "${var.app_name}-alb"
+    Name = "${var.app_name}-${var.environment}-alb"
   }
 }
 
 resource "aws_lb_target_group" "alb_tg" {
-  name        = "${var.app_name}-tg"
+  name        = "${var.app_name}-${var.environment}-tg"
   port        = var.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -37,16 +37,11 @@ resource "aws_lb_listener" "https" {
   certificate_arn   = var.certificate_arn
 
   default_action {
-    type = "forward"
-
-    forward {
-      target_group {
-        arn = aws_lb_target_group.alb_tg.arn
-      }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.alb_tg.arn
     }
   }
-}
-
+  
 resource "aws_lb_listener" "http_redirect" {
   load_balancer_arn = aws_lb.airtrail_alb.arn
   port              = 80

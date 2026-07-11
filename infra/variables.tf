@@ -184,4 +184,22 @@ variable "desired_count" {
   default     = 1
 }
 
+variable "cpu" {
+  description = "ECS task cpu units"
+  type        = number
+}
 
+variable "memory" {
+  description = "ECS task memory in MiB"
+  type        = number
+}
+
+variable "log_retention_days" {
+  description = "CloudWatch log retention in days"
+  type        = number
+}
+
+variable "zone_id" {
+  description = "Route 53 hosted zone for the env"
+  type        = string
+}

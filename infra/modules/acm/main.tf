@@ -7,7 +7,7 @@ resource "aws_acm_certificate" "airtrail_acm" {
   }
 
   tags = {
-    Environment = "${var.app_name}-acm-certificate"
+    Name = "${var.app_name}-${var.environment}-acm-certificate"
   }
 }
 
@@ -32,18 +32,3 @@ resource "aws_acm_certificate_validation" "acm_cert_validation" {
   validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
 }
 
-data "aws_route53_zone" "airtrail_route53_zone" {
-  name = var.domain_name
-}
-
-resource "aws_route53_record" "airtrail_route53_record" {
-  zone_id = var.zone_id
-  name    = var.domain_name
-  type    = "A"
-
-  alias {
-    name                   = var.alb_dns_name
-    zone_id                = var.alb_zone_id
-    evaluate_target_health = true
-  }
-}
