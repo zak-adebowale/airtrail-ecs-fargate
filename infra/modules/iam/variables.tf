@@ -19,6 +19,12 @@ variable "environment" {
 }
 
 variable "oidc_provider_arn" {
-  description = "Arn for the IIDC provider"
+  description = "ARN for the IIDC provider"
   type        = string
+}
+
+variable "ecs_execution_policy_arn" {
+  description = "ARN for the ECS exec policy role attachment"
+  type        = string
+  default     = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
