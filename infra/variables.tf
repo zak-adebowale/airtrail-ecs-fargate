@@ -128,7 +128,7 @@ variable "db_name" {
 variable "multi_az" {
   description = "Whether to deploy a standy replica in a 2nd az for auto failover. True for prod, False for dev/staging"
   type        = bool
-  default     = "false"
+  default     = false
 }
 
 variable "skip_final_snapshot" {
