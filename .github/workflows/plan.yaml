@@ -1,0 +1,74 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - "infra/**"
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform-plan:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [dev, prod]
+    environment: ${{ matrix.environment }}
+
+    defaults:
+      run:
+        working-directory: infra
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.4
+
+      - name: Create terraform.tfvars
+        run: |
+          cat <<'EOF' > terraform.tfvars
+          ${{ secrets.TF_VARS }}
+          EOF
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=${{ matrix.environment }}/terraform.tfstate"
+
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Initialise TFLint
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint --recursive
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: infra
+          framework: terraform
+
+      - name: Terraform Plan
+        run: terraform plan -var-file=terraform.tfvars
