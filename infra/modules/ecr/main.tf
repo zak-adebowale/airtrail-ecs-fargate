@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 1.15"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+}
+
 resource "aws_ecr_repository" "airtrail" {
   name                 = "${var.app_name}-${var.environment}"
   image_tag_mutability = "MUTABLE"

@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 1.15"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+}
+
 resource "aws_lb" "airtrail_alb" {
   name               = "${var.app_name}-${var.environment}-alb"
   internal           = false

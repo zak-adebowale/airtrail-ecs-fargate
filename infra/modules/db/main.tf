@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 1.15"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+}
+
 resource "aws_db_instance" "db_instance" {
   allocated_storage      = var.allocated_storage
   db_name                = var.db_name

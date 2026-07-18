@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 1.15"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+}
+
 resource "aws_security_group" "alb_sg" {
   name        = "${var.app_name}-${var.environment}-alb-sg"
   description = "Allow inbound HTTP and HTTPS from internet"

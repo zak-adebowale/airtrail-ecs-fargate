@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.5.0"
+  required_version = ">= 1.15"
 
   required_providers {
     aws = {
@@ -14,8 +14,8 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Project     = "airtrail-ecs-fargate"
-      Environment = "dev"
+      Project     = "var.repo_name"
+      Environment = "var.environment"
       ManagedBy   = "terraform"
     }
   }
