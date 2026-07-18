@@ -10,12 +10,12 @@ terraform {
 }
 
 provider "aws" {
-  region = "eu-west-2"
+  region = var.aws_region
 
   default_tags {
     tags = {
-      Project     = "var.repo_name"
-      Environment = "var.environment"
+      Project     = var.repo_name
+      Environment = var.environment
       ManagedBy   = "terraform"
     }
   }

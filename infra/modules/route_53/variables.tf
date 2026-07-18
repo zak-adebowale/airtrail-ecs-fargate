@@ -3,11 +3,6 @@ variable "domain_name" {
   type        = string
 }
 
-variable "environment" {
-  description = "Deployment environment (dev or prod)"
-  type        = string
-}
-
 variable "zone_id" {
   description = "Route53 hosted zone ID"
   type        = string

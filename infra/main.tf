@@ -2,7 +2,6 @@ module "vpc" {
   source                = "./modules/vpc"
   environment           = var.environment
   app_name              = var.app_name
-  aws_region            = var.aws_region
   az_1                  = var.az_1
   az_2                  = var.az_2
   vpc_cidr              = var.vpc_cidr
@@ -47,7 +46,6 @@ module "acm" {
 
 module "route_53" {
   source       = "./modules/route_53"
-  environment  = var.environment
   domain_name  = var.domain_name
   zone_id      = var.zone_id
   alb_dns_name = module.alb.alb_dns_name
