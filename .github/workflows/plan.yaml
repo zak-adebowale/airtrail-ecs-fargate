@@ -1,14 +1,15 @@
 name: Terraform Plan
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   pull_request:
     paths:
       - "infra/**"
+
   workflow_dispatch:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
+          
 permissions:
   id-token: write
   contents: read
@@ -16,10 +17,8 @@ permissions:
 jobs:
   terraform-plan:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment: [dev, prod]
-    environment: ${{ matrix.environment }}
+    
+    environment: ${{ vars.ACTIVE_ENVIRONMENT }}
 
     defaults:
       run:
@@ -47,7 +46,7 @@ jobs:
           EOF
 
       - name: Terraform Init
-        run: terraform init -backend-config="key=${{ matrix.environment }}/terraform.tfstate"
+        run: terraform init -backend-config="key=${{ vars.ACTIVE_ENVIRONMENT }}/terraform.tfstate"
 
       - name: Terraform Format
         run: terraform fmt -check -recursive

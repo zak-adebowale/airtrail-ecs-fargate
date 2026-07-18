@@ -66,21 +66,16 @@ resource "aws_iam_role_policy" "github_actions" {
       {
         Effect = "Allow"
         Action = [
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:PutImage",
-          "ecr:InitiateLayerUpload",
-          "ecr:UploadLayerPart",
-          "ecr:CompleteLayerUpload",
-          "ecs:UpdateService",
-          "ecs:DescribeServices",
-          "ecs:RegisterTaskDefinition",
-          "ecs:DescribeTaskDefinition",
-          "iam:PassRole",
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:ListBucket",
-          "s3:DeleteObject"
+          "ec2:*",
+           "elasticloadbalancing:*",
+           "ecs:*",
+           "ecr:*",
+           "rds:*",
+           "acm:*",
+           "iam:*",
+           "logs:*",
+           "route53:*",
+           "s3:*"
         ]
         Resource = "*"
       }
