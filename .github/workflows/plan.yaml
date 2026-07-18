@@ -17,8 +17,10 @@ permissions:
 jobs:
   terraform-plan:
     runs-on: ubuntu-latest
-    
-    environment: ${{ vars.ACTIVE_ENVIRONMENT }}
+    strategy:
+      matrix:
+        environment: [dev, prod]
+    environment: ${{ matrix.environment }}
 
     defaults:
       run:
@@ -46,7 +48,7 @@ jobs:
           EOF
 
       - name: Terraform Init
-        run: terraform init -backend-config="key=${{ vars.ACTIVE_ENVIRONMENT }}/terraform.tfstate"
+        run: terraform init -backend-config="key=${{ matrix.environment }}/terraform.tfstate"
 
       - name: Terraform Format
         run: terraform fmt -check -recursive
