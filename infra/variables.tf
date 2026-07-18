@@ -160,22 +160,9 @@ variable "ssl_policy" {
   type        = string
 }
 
-variable "container_cpu" {
-  description = "App container cpu"
+variable "log_retention_days" {
+  description = "The number of days Cloudwatch logs are retained"
   type        = number
-  default     = 1024
-}
-
-variable "container_memory" {
-  description = "App container memory in MiB"
-  type        = number
-  default     = 2048
-}
-
-variable "retention_days" {
-  description = "Number of days Cloudwatch logs are retained"
-  type        = number
-  default     = 7
 }
 
 variable "desired_count" {
@@ -191,11 +178,6 @@ variable "cpu" {
 
 variable "memory" {
   description = "ECS task memory in MiB"
-  type        = number
-}
-
-variable "log_retention_days" {
-  description = "CloudWatch log retention in days"
   type        = number
 }
 

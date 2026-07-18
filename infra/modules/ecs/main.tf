@@ -20,15 +20,15 @@ resource "aws_ecs_cluster" "airtrail_ecs_cluster" {
 
 resource "aws_cloudwatch_log_group" "airtrail_cloudwatch" {
   name              = "/ecs/${var.app_name}-${var.environment}"
-  retention_in_days = var.retention_days
+  retention_in_days = var.log_retention_days
 }
 
 resource "aws_ecs_task_definition" "airtrail_task_definition" {
   family                   = "${var.app_name}-${var.environment}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = var.container_cpu
-  memory                   = var.container_memory
+  cpu                      = var.cpu
+  memory                   = var.memory
   execution_role_arn       = var.execution_role_arn
   container_definitions = jsonencode([
     {

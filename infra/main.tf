@@ -90,14 +90,12 @@ module "ecs" {
   execution_role_arn   = module.iam.iam_ecs_execution
   ecr_repo             = module.ecr.ecr_repo
   domain_name          = var.domain_name
-  db_username          = var.db_username
-  db_password          = var.db_password
   aws_region           = var.aws_region
   container_port       = var.container_port
-  container_cpu        = var.container_cpu
-  container_memory     = var.container_memory
+  cpu                  = var.cpu
+  memory               = var.memory
   health_check_path    = var.health_check_path
-  retention_days       = var.retention_days
+  log_retention_days   = var.log_retention_days
   desired_count        = var.desired_count
   private_subnet_ids   = module.vpc.private_subnet_ids
   ecs_sg_id            = [module.security_groups.ecs_sg_id]

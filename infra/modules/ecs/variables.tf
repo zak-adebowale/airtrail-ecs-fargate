@@ -18,18 +18,6 @@ variable "domain_name" {
   type        = string
 }
 
-variable "db_username" {
-  description = "RDS master username"
-  type        = string
-  sensitive   = true
-}
-
-variable "db_password" {
-  description = "RDS master password"
-  type        = string
-  sensitive   = true
-}
-
 variable "aws_region" {
   description = "AWS region"
   type        = string
@@ -72,17 +60,17 @@ variable "container_port" {
   type        = number
 }
 
-variable "container_cpu" {
+variable "cpu" {
   description = "App container cpu"
   type        = number
 }
 
-variable "container_memory" {
+variable "memory" {
   description = "App container memory in MiB"
   type        = number
 }
 
-variable "retention_days" {
+variable "log_retention_days" {
   description = "The number of days Cloudwatch logs are retained"
   type        = number
 }
