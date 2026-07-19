@@ -1,0 +1,61 @@
+name: Terrafom Destroy
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type destroy to confirm"
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform-destroy:
+    runs-on: ubuntu-latest
+
+    environment: ${{ vars.ACTIVE_ENVIRONMENT }}
+
+    defaults:
+      run: 
+        working-directory: infra
+    
+    steps:
+      - name: Confirm destroy
+        run: |
+          if [ "${{ github.event.inputs.confirmation }}" != "destroy" ]; then
+            echo "Destroy confirmation failed."
+            echo "You must type: destroy"
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.4
+
+      - name: Create terraform.tfvars
+        run: |
+          cat <<'EOF' > terraform.tfvars
+          ${{ secrets.TF_VARS }}
+          EOF
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=${{ vars.ACTIVE_ENVIRONMENT }}/terraform.tfstate"
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve -var-file=terraform.tfvars
