@@ -1,0 +1,74 @@
+name: Application Deploy
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  push: 
+    branches:
+      - main
+    paths:
+     - "app/**"
+     - ".github/workflows/app.yaml"
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  application-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ vars.ACTIVE_ENVIRONMENT }}
+
+    defaults:
+      run:
+        working-directory: .
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            -t airtrail:latest \
+            ./app
+
+      - name: Tag Docker image
+        run: |
+          docker tag airtrail:latest \
+          ${{ steps.login-ecr.outputs.registry }}/airtrail-${{ vars.ACTIVE_ENVIRONMENT }}:latest
+
+      - name: Push Docker image
+        run: | 
+          docker push \
+          ${{ steps.login-ecr.outputs.registry }}/airtrail-${{ vars.ACTIVE_ENVIRONMENT }}:latest
+
+      - name: Force ECS deployment
+        run: |
+          aws ecs update-service \
+            --cluster airtrail-${{ vars.ACTIVE_ENVIRONMENT }}-cluster \
+            --service airtrail-${{ vars.ACTIVE_ENVIRONMENT }}-service \
+            --force-new-deployment
+
+      - name: Wait for deployment
+        run: |
+          aws ecs wait services-stable \
+            --cluster airtrail-${{ vars.ACTIVE_ENVIRONMENT }}-cluster \
+            --services airtrail-${{ vars.ACTIVE_ENVIRONMENT }}-service 
