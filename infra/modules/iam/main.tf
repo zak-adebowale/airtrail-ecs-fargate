@@ -32,7 +32,7 @@ resource "aws_iam_role_policy_attachment" "ecs_execution" {
 }
 
 resource "aws_iam_role" "github_actions" {
-  name = "${var.app_name}-${var.environment}-github-actions-role"
+  name                 = "${var.app_name}-${var.environment}-github-actions-role"
   max_session_duration = 14400
 
   assume_role_policy = jsonencode({
