@@ -26,6 +26,9 @@ jobs:
         working-directory: infra
     
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
       - name: Confirm destroy
         run: |
           if [ "${{ github.event.inputs.confirmation }}" != "destroy" ]; then
@@ -33,9 +36,6 @@ jobs:
             echo "You must type: destroy"
             exit 1
           fi
-
-      - name: Checkout repository
-        uses: actions/checkout@v5
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
