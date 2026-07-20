@@ -62,8 +62,3 @@ variable "skip_final_snapshot" {
   description = "If true no final snapshot upon db instance deletion. Should be false in prod to prevent accidental data loss in teardown"
   type        = bool
 }
-
-variable "deletion_protection" {
-  description = "Should be true in prod as a safeguard against accidental deletion"
-  type        = bool
-}

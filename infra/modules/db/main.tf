@@ -24,7 +24,6 @@ resource "aws_db_instance" "db_instance" {
   multi_az               = var.multi_az
   publicly_accessible    = false
   skip_final_snapshot    = var.skip_final_snapshot
-  deletion_protection    = var.deletion_protection
 
   tags = {
     Name = "${var.app_name}-${var.environment}-db"

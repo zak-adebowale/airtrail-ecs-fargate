@@ -67,7 +67,6 @@ module "db" {
   storage_type         = var.storage_type
   multi_az             = var.multi_az
   skip_final_snapshot  = var.skip_final_snapshot
-  deletion_protection  = var.deletion_protection
 }
 
 module "alb" {
