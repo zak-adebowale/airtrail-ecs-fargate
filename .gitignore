@@ -2,13 +2,12 @@
 .env.*
 !.env.example
 
-infra/.terraform/
-infra/.terraform.lock.hcl
-infra/**/*.tfvars
+**/.terraform/
+**/*.tfvars
 **/*.tfstate
 **/*.tfstate.backup
-infra/*.tfplan
-infra/tfplan
+**/*.tfplan
+**/tfplan
 
 app/node_modules/
 app/build/
