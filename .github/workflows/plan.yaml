@@ -42,6 +42,9 @@ jobs:
         with:
           terraform_version: 1.15.4
 
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+
       - name: Create terraform.tfvars
         run: |
           cat <<'EOF' > terraform.tfvars
@@ -50,9 +53,6 @@ jobs:
 
       - name: Terraform Init
         run: terraform init -backend-config="key=${{ matrix.environment }}/terraform.tfstate"
-
-      - name: Terraform Format
-        run: terraform fmt -check -recursive
 
       - name: Terraform Validate
         run: terraform validate
