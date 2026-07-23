@@ -29,6 +29,7 @@ resource "aws_db_instance" "db_instance" {
   enabled_cloudwatch_logs_exports       = ["postgresql"]
   performance_insights_enabled          = true
   performance_insights_retention_period = 7
+  auto_minor_version_upgrade            = true
 
   tags = {
     Name = "${var.app_name}-${var.environment}-db"
