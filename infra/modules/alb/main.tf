@@ -10,11 +10,12 @@ terraform {
 }
 
 resource "aws_lb" "airtrail_alb" {
-  name               = "${var.app_name}-${var.environment}-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = var.alb_sg_id
-  subnets            = var.public_subnet_ids
+  name                       = "${var.app_name}-${var.environment}-alb"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = var.alb_sg_id
+  subnets                    = var.public_subnet_ids
+  drop_invalid_header_fields = true
 
   tags = {
     Name = "${var.app_name}-${var.environment}-alb"

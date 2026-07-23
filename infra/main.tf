@@ -62,7 +62,6 @@ module "db" {
   allocated_storage    = var.allocated_storage
   engine_version       = var.engine_version
   storage_type         = var.storage_type
-  multi_az             = var.multi_az
   skip_final_snapshot  = var.skip_final_snapshot
 }
 

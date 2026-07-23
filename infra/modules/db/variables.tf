@@ -52,12 +52,6 @@ variable "storage_type" {
   type        = string
 }
 
-variable "multi_az" {
-  description = "Whether to deploy a standby replica in a 2nd az for auto failover. True for prod, False for dev/staging"
-  type        = bool
-  default     = false
-}
-
 variable "skip_final_snapshot" {
   description = "If true no final snapshot upon db instance deletion. Should be false in prod to prevent accidental data loss in teardown"
   type        = bool
