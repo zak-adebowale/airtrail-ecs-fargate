@@ -1,15 +1,12 @@
 module "vpc" {
-  source                = "./modules/vpc"
-  environment           = var.environment
-  app_name              = var.app_name
-  az_1                  = var.az_1
-  az_2                  = var.az_2
-  vpc_cidr              = var.vpc_cidr
-  all_ip_cidr           = var.all_ip_cidr
-  public_subnet_1_cidr  = var.public_subnet_1_cidr
-  public_subnet_2_cidr  = var.public_subnet_2_cidr
-  private_subnet_1_cidr = var.private_subnet_1_cidr
-  private_subnet_2_cidr = var.private_subnet_2_cidr
+  source               = "./modules/vpc"
+  environment          = var.environment
+  app_name             = var.app_name
+  availability_zones   = var.availability_zones
+  vpc_cidr             = var.vpc_cidr
+  all_ip_cidr          = var.all_ip_cidr
+  public_subnet_cidrs  = var.public_subnet_cidrs
+  private_subnet_cidrs = var.private_subnet_cidrs
 }
 
 module "security_groups" {
