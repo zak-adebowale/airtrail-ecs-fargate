@@ -2,6 +2,7 @@ name: Application Deploy
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  IMAGE_TAG: ${{ github.sha }}
 
 on:
   push: 
@@ -40,35 +41,36 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build Docker image
         run: |
           docker build \
-            --platform linux/amd64 \
-            -t airtrail:latest \
+            -t ${{ steps.login-ecr.outputs.registry }}/airtrail-${{ vars.ACTIVE_ENVIRONMENT }}:${{ env.IMAGE_TAG }} \
             ./app
-
-      - name: Tag Docker image
-        run: |
-          docker tag airtrail:latest \
-          ${{ steps.login-ecr.outputs.registry }}/airtrail-${{ vars.ACTIVE_ENVIRONMENT }}:latest
 
       - name: Push Docker image
         run: | 
           docker push \
-          ${{ steps.login-ecr.outputs.registry }}/airtrail-${{ vars.ACTIVE_ENVIRONMENT }}:latest
+            ${{ steps.login-ecr.outputs.registry }}/airtrail-${{ vars.ACTIVE_ENVIRONMENT }}:${{ env.IMAGE_TAG }}
 
-      - name: Force ECS deployment
+      - name: Download task definition
         run: |
-          aws ecs update-service \
-            --cluster airtrail-${{ vars.ACTIVE_ENVIRONMENT }}-cluster \
-            --service airtrail-${{ vars.ACTIVE_ENVIRONMENT }}-service \
-            --force-new-deployment
+          aws ecs describe-task-definition \
+            --task-definition airtrail-${{ vars.ACTIVE_ENVIRONMENT }} \
+            --query taskDefinition \
+            > task-definition.json
 
-      - name: Wait for deployment
-        run: |
-          aws ecs wait services-stable \
-            --cluster airtrail-${{ vars.ACTIVE_ENVIRONMENT }}-cluster \
-            --services airtrail-${{ vars.ACTIVE_ENVIRONMENT }}-service 
+      - name: Update task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: airtrail
+          image: ${{ steps.login-ecr.outputs.registry }}/airtrail-${{ vars.ACTIVE_ENVIRONMENT }}:${{ env.IMAGE_TAG }}
+
+      - name: Deploy task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with: 
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: airtrail-${{ vars.ACTIVE_ENVIRONMENT }}-service
+          cluster: airtrail-${{ vars.ACTIVE_ENVIRONMENT }}-cluster
+          wait-for-service-stability: true
