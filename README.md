@@ -177,7 +177,7 @@ I rebuilt the Docker image as a multi-stage build to cut deployment time. I also
 | Dockerfile | Compressed Size | Notes |
 |------------|----------------:|-------|
 | Original AirTrail | 339 MB | Upstream project Dockerfile |
-| Single stage build | 378 MB | Build tools and dev dependencies left in |
+| Single-stage build | 378 MB | Build tools and dev dependencies left in |
 | Optimised multi-stage build | **152 MB** | 55% smaller than the original |
 
 The optimised Dockerfile separates dependency installation, app compilation, and the production runtime into distinct stages. That cut the compressed image size from **339 MB** to **152 MB**, with no loss to the app's functionality, health checks, or entrypoint behaviour. 
