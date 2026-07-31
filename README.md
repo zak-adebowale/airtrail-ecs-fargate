@@ -36,7 +36,7 @@ https://dev.airtrail.adebowale.co.uk
 - ECS Fargate container deployment
 - PostgreSQL database connectivity
 
-[Demo]
+https://github.com/user-attachments/assets/04ed2b8c-dc5e-461f-bd9d-a12f136988ae
 
 ### Health Endpoint
 
