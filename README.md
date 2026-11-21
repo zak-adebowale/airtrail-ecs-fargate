@@ -234,7 +234,6 @@ Potential improvements include:
 - WAF
 - CloudFront
 - Blue/Green Deployments
-- RDS Multi-AZ Production
 - Terraform Cloud
 - GitHub Environments with approvals
 - Monitoring dashboards
